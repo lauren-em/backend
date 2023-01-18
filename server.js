@@ -11,7 +11,9 @@ app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
 
 app.get('/api/images', async (req, res) => {
-  const images = await db.getImages()
+  let filter = req.query.filter
+  console.log(filter)
+  const images = await db.getImages(filter)
   console.log(images)
   res.send(images)
 })
@@ -32,16 +34,6 @@ app.get('/api/images/:fileName', (req, res) => {
   const fileName = req.params.fileName
   const readStream = fs.createReadStream(`images/${fileName}`)
   readStream.pipe(res)
-})
-
-app.post('api/images/delete/:fileName', async (req, res) => {
-  const fileName = req.params.fileName
-  const dbResult = await db.deleteNote(fileName)
-  const fileResult = await fs.unlink(`images/${fileName}`, (err) => {
-    if (err) throw err
-    console.log(`images/${fileName} was deleted`)
-  })
-  res.send(dbResult, fileResult)
 })
 
 const port = process.env.PORT || 8080

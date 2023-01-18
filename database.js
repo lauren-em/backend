@@ -15,12 +15,13 @@ const pool = mysql
 class DatabaseOps {
   DatabaseOps() {}
 
-  async getImages() {
+  async getImages(filter) {
     let query = `
     SELECT *
     FROM images
+    WHERE type = ?
     ORDER BY created DESC`
-    const [rows] = await pool.query(query)
+    const [rows] = await pool.query(query, [filter])
     return rows
   }
 
@@ -42,16 +43,6 @@ class DatabaseOps {
     const id = result.insertId
     console.log('result in add image', result)
     return await this.getImage(id)
-  }
-
-  async deleteNote(fileName) {
-    let query = `
-    DELETE FROM images
-    WHERE fileName = ?
-    `
-    const [result] = await pool.query(query, [fileName])
-    console.log(result.info)
-    return result
   }
 }
 
