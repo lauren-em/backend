@@ -10,6 +10,12 @@ const db = new DatabaseOps()
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
 
+app.use(express.static('dist'))
+
+app.get('/', (req, res) => {
+  // serve react app
+})
+
 app.get('/api/images', async (req, res) => {
   let filter = req.query.filter
   console.log(filter)
@@ -19,7 +25,6 @@ app.get('/api/images', async (req, res) => {
 })
 
 app.post('/api/images', upload.single('image'), async (req, res) => {
-  console.log('here')
   console.log(req.file.filename)
   const image = await db.addImage(
     req.file.filename,
