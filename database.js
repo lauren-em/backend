@@ -25,13 +25,13 @@ class DatabaseOps {
     return rows
   }
 
-  async getImage(id) {
+  async getImage(fileName) {
     let query = `
     SELECT * 
     FROM images
-    WHERE id = ?
+    WHERE fileName = ?
     `
-    const [rows] = await pool.query(query, [id])
+    const [rows] = await pool.query(query, [fileName])
     return rows[0]
   }
 
@@ -42,7 +42,16 @@ class DatabaseOps {
     const [result] = await pool.query(query, [fileName, description, type])
     const id = result.insertId
     console.log('result in add image', result)
-    return await this.getImage(id)
+    return await this.getImage(fileName)
+  }
+
+  async deleteImage(fileName) {
+    let query = `
+    DELETE FROM images
+    WHERE fileName = ?
+    `
+    const [rows] = await pool.query(query, [fileName])
+    return rows[0]
   }
 }
 

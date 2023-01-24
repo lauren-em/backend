@@ -24,6 +24,7 @@ app.get('/', (req, res) => {
   // serve react app
 })
 
+// get set of images to display
 app.get('/api/images', async (req, res) => {
   let filter = req.query.filter
   console.log(filter)
@@ -36,6 +37,7 @@ app.get('/api/images', async (req, res) => {
   res.send(images)
 })
 
+// upload a new image
 app.post('/api/images', upload.single('image'), async (req, res) => {
   // Get the data from the post request
   const description = req.body.description
@@ -51,11 +53,32 @@ app.post('/api/images', upload.single('image'), async (req, res) => {
 
   // Store the image in the database
   const databaseResult = await db.addImage(fileName, description, imageType)
+  console.log('db result', databaseResult)
 
   // Get URL to return to send back to front end
   databaseResult.imageURL = await s3.getSignedUrl(fileName)
 
   res.status(201).send(databaseResult)
+})
+
+// delete an image
+app.post('/api/images/delete/:fileName', async (req, res) => {
+  // check that image exists in the database
+  const fileName = req.params.fileName
+  console.log(fileName)
+  const image = db.getImage(fileName)
+
+  if (!image) {
+    return res.status(404)
+  }
+
+  // delete from s3
+  const s3Result = await s3.deleteImage(fileName)
+
+  // delete from the database
+  const dbResult = await db.deleteImage(fileName)
+
+  res.status(200).send(dbResult)
 })
 
 const port = process.env.PORT || 8080

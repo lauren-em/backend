@@ -2,6 +2,7 @@ import {
   S3Client,
   PutObjectCommand,
   GetObjectCommand,
+  DeleteObjectCommand,
 } from '@aws-sdk/client-s3'
 import * as presigner from '@aws-sdk/s3-request-presigner'
 
@@ -33,6 +34,20 @@ export async function uploadImage(imageBuffer, imageName, mimetype) {
 
   // Upload the image to S3
   const command = new PutObjectCommand(params)
+  const data = await s3Client.send(command)
+
+  return data
+}
+
+export async function deleteImage(imageName) {
+  // Create params that the S3 client will use to upload the image
+  const params = {
+    Bucket: bucketName,
+    Key: imageName,
+  }
+
+  // Delete the image from S3
+  const command = new DeleteObjectCommand(params)
   const data = await s3Client.send(command)
 
   return data
